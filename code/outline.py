@@ -1,14 +1,14 @@
 # Preprocessing and Enhancement
 
 import torch
-from unet-torch import UNet
+from unet import UNet # loads our pytorch definition at unet.py
 
-# Load pretrained U-net model
+# Load pretrained unet
 unet_model = UNet()
-unet_model.load_state_dict(torch.load('torchmodel.state_dict.pt'))
+unet_model.load_state_dict(torch.load('pretrained.state_dict.pt'))
 unet_model.eval()
 
-# Function to preprocess and enhance fingerprints
+# Function to preprocess fingerprints, enhance with pretrained unet, and postprocess
 def enhance_fingerprint(raw_image):
     with torch.no_grad():
         input_tensor = preprocess(raw_image)  # TODO preprocessing 
@@ -64,7 +64,8 @@ def generate_stylized_fingerprint(raw_image):
     return final_output
 
 
-# user interface
+# user interface. Upload fingerprint image and get stylized image
+# propably not necessary. Just for demonstration purposes
 
 import flask  
 
