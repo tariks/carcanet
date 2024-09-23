@@ -1,0 +1,83 @@
+import sys
+from contextlib import contextmanager
+from glob import glob
+import shutil
+import os
+from pathlib import Path
+
+internal_path = Path(__file__).parent / "internal"
+internal_input = internal_path / "input"
+internal_input_str = internal_input.as_posix()
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = devnull
+        sys.stderr = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
+
+
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog="glyptic",
+    description="A tool to turn fingerprint scans into vector art.",
+    epilog="For more information, visit https://github.com/tariks/carcanet",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
+parser.add_argument(
+    "-i",
+    "--input",
+    nargs="+",
+    action="extend",
+    help="Path to input image, space-delimited sequence of images, or glob expression (myinput/*.jpg, etc)",
+)
+parser.add_argument("-o", "--outdir", default="output", help="Output directory")
+parser.add_argument(
+    "--enhance-only",
+    action="store_true",
+    help="Only perform enhancement, don't run the rest of the workflow. Expects raw fingerprint jpegs. Outputs 288x400 greyscale pngs.",
+)
+parser.add_argument(
+    "--diffusion-only",
+    action="store_true",
+    help="Only perform diffusion step, don't run enhancement preprocessor. Expects enhanced 288x400 pngs. Outputs high resolution line art in png and svg formats.",
+)
+args = parser.parse_args()
+
+infiles = args.input
+outdir = args.outdir
+Path(outdir).mkdir(parents=True, exist_ok=True)
+outdir = Path(outdir).as_posix()
+
+
+def refine(infiles=infiles, outdir=outdir):
+    from .enhance_fingerprints import enhance
+
+    enhance(infiles, outdir)
+
+
+def glyptic():
+    if args.enhance_only:
+        refine(infiles, outdir)
+    elif args.diffusion_only:
+        with suppress_stdout():
+            from .glyptic_workflow import run_workflow
+
+            for infile in infiles:
+                shutil.copy2(infile, internal_input)
+                run_workflow(infile, outdir)
+    else:
+        refine(infiles, internal_input)
+        with suppress_stdout():
+            from .glyptic_workflow import run_workflow
+
+            for infile in internal_input.glob("*png"):
+                run_workflow(infile.as_posix(), outdir)
