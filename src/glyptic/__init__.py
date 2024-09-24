@@ -27,7 +27,7 @@ import argparse
 parser = argparse.ArgumentParser(
     prog="glyptic",
     description="A tool to turn fingerprint scans into vector art.",
-    epilog="For more information, visit https://github.com/tariks/carcanet",
+    epilog="For more information, visit https://github.com/tariks/glyptic",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument(

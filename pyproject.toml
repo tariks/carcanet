@@ -29,6 +29,7 @@ dependencies = [
     "tensorflow>=2.17.0",
     "scikit-image>=0.24.0",
     "xdg-base-dirs>=6.0.1",
+    "huggingface-hub>=0.25.0",
 ]
 keywords = ["fingerprint", "stable diffusion", "sdxl", "fingerprint enhancement", "jewelry engraving", "img2img", "image-to-image",]
 authors = [
@@ -50,6 +51,7 @@ Repository = "https://github.com/tariks/glyptic.git"
 
 [project.scripts]
 glyptic = "glyptic:glyptic"
+glyptic_setup = "glyptic.setup_xdg:glyptic_setup"
 
 [tool.basedpyright]
 include = ["src/glyptic", "src/glyptic/internal"]
@@ -57,9 +59,6 @@ venvPath = ".venv"
 reportMissingTypeStubs = false
 reportMissingImports = "none"
 typeCheckingMode = "basic"
-
-[tool.uv]
-no-build-isolation-package = ["torch"]
 
 [build-system]
 requires = ["hatchling"]
