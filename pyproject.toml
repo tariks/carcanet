@@ -51,7 +51,7 @@ Repository = "https://github.com/tariks/glyptic.git"
 
 [project.scripts]
 glyptic = "glyptic:glyptic"
-glyptic_setup = "glyptic_setup:glyptic_setup"
+glyptic_setup = "glyptic:glyptic_setup"
 
 [tool.basedpyright]
 include = ["src/glyptic", "src/glyptic/internal"]

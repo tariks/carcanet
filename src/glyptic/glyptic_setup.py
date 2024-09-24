@@ -2,7 +2,6 @@ from xdg_base_dirs import xdg_config_home, xdg_data_home
 from pathlib import Path
 from typing import TextIO
 
-gdata = xdg_data_home() / "glyptic"
 
 
 def make_config(data_path: Path):
@@ -77,34 +76,9 @@ def download_models(data_path: Path):
 
 import argparse
 
-parser = argparse.ArgumentParser(
-    prog="glyptic_setup",
-    description="Set up or download required data for glyptic.",
-    epilog="See https://github.com/tariks/glyptic for more info.",
-)
-parser.add_argument(
-    "-d",
-    "--download",
-    action="store_true",
-    help="Download required models (about 9GB). If you already have them, better to skip this and symlink them to the data dirs",
-)
-parser.add_argument(
-    "-c",
-    "--config",
-    action="store_true",
-    help="Create config file user XDG_CONFIG/glyptic directory. This file defines where glyptic looks for models. If it already exists, it will be overwritten.",
-)
-parser.add_argument(
-    "--custom-data-dir",
-    type=str,
-    default=str(gdata),
-    help="Specify the base data directory. If not specified, will use XDG_DATA_HOME/glyptic. Use in conjunction with --config and/or --download.",
-)
-
-args = parser.parse_args()
 
 
-def glyptic_setup():
+def glyptic_setup(args: argparse.Namespace):
     data_path = Path(args.custom_data_dir).resolve()
     if args.config:
         make_config(data_path)
