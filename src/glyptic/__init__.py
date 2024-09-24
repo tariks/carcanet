@@ -34,19 +34,21 @@ parser.add_argument(
     "-i",
     "--input",
     nargs="+",
+    required=True,
     action="extend",
-    help="Path to input image, space-delimited sequence of images, or glob expression (myinput/*.jpg, etc)",
+    help="Path to input fingerprint image(s). Can be a space-delimited sequence of file paths or a glob expression (myinput/*.jpg, etc)",
 )
 parser.add_argument("-o", "--outdir", default="output", help="Output directory")
-parser.add_argument(
+group = parser.add_mutually_exclusive_group()
+group.add_argument(
     "--enhance-only",
     action="store_true",
-    help="Only perform enhancement, don't run the rest of the workflow. Expects raw fingerprint jpegs. Outputs 288x400 greyscale pngs.",
+    help="Only perform enhancement preprocessing, skip stable diffusion. Expects raw fingerprint jpegs. Outputs 288x400 greyscale pngs.",
 )
-parser.add_argument(
+group.add_argument(
     "--diffusion-only",
     action="store_true",
-    help="Only perform diffusion step, don't run enhancement preprocessor. Expects enhanced 288x400 pngs. Outputs high resolution line art in png and svg formats.",
+    help="Only perform diffusion step, skip enhancement preprocessing. Expects enhanced 288x400 pngs. Outputs high resolution line art as png and svg files.",
 )
 args = parser.parse_args()
 
