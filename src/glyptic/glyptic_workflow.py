@@ -13,8 +13,9 @@ import vtracer
 
 
 def run_workflow(infile, outdir):
-    basefull = Path(infile).name
-    base = Path(infile).stem
+    basefull = infile.name
+    base = infile.stem
+    outfile = outdir / f"{base}.png"
     with Workflow():
         model, clip, vae = CheckpointLoaderSimple(
             "Juggernaut-XI-byRunDiffusion.safetensors"
@@ -71,10 +72,10 @@ def run_workflow(infile, outdir):
         image3 = VAEDecode(latent, vae)
         png = SaveImage(image3, base)
         image = png.wait()[0]
-        image.save(f"{outdir}/{base}.png", optimize=True)
+        image.save(outfile, optimize=True)
         vtracer.convert_image_to_svg_py(
-            f"{outdir}/{base}.png",
-            f"{outdir}/{base}.svg",
+            outfile.as_posix(),
+            outfile.with_suffix(".svg").as_posix(),
             colormode="binary",
         )
         for i in (internal / "output").glob(f"{base}*g"):

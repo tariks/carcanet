@@ -1,13 +1,11 @@
 import sys
 from contextlib import contextmanager
-from glob import glob
 import shutil
 import os
 from pathlib import Path
 
 internal_path = Path(__file__).parent / "internal"
 internal_input = internal_path / "input"
-internal_input_str = internal_input.as_posix()
 
 
 @contextmanager
@@ -52,10 +50,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-infiles = args.input
-outdir = args.outdir
-Path(outdir).mkdir(parents=True, exist_ok=True)
-outdir = Path(outdir).as_posix()
+infiles = [Path(f).resolve() for f in args.input]
+outdir = Path(args.outdir).resolve()
+outdir.mkdir(parents=True, exist_ok=True)
 
 
 def refine(infiles=infiles, outdir=outdir):
@@ -76,8 +73,8 @@ def glyptic():
                 run_workflow(infile, outdir)
     else:
         refine(infiles, internal_input)
-        with suppress_stdout():
-            from .glyptic_workflow import run_workflow
+        # with suppress_stdout():
+        from .glyptic_workflow import run_workflow
 
-            for infile in internal_input.glob("*png"):
-                run_workflow(infile.as_posix(), outdir)
+        for infile in internal_input.glob("*png"):
+            run_workflow(infile, outdir)
