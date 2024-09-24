@@ -57,15 +57,16 @@ def download_models(data_path: Path):
     from huggingface_hub import hf_hub_download
 
     print("downloading models...")
-    print("downloading Juggernaut-XI-v11")
-    hf_hub_download(
-        repo_id="RunDiffusion/Juggernaut-XI-v11",
-        filename="Juggernaut-XI-byRunDiffusion.safetensors",
-        local_dir=data_path / "models" / "checkpoints",
-    )
+    # print("downloading Juggernaut-XI-v11")
+    # hf_hub_download(
+    #     repo_id="RunDiffusion/Juggernaut-XI-v11",
+    #     filename="Juggernaut-XI-byRunDiffusion.safetensors",
+    #     local_dir=data_path / "models" / "checkpoints",
+    # )
     controlnet = (
         data_path / "models" / "controlnet" / "xinsir_controlnet-union-sdxl-1.0"
     )
+    print("downloading controlnet-union...")
     controlnet.mkdir(exist_ok=True, parents=True)
     hf_hub_download(
         repo_id="xinsir/controlnet-union-sdxl-1.0",
