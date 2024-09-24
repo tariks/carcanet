@@ -73,8 +73,8 @@ def glyptic():
                 run_workflow(infile, outdir)
     else:
         refine(infiles, internal_input)
-        # with suppress_stdout():
-        from .glyptic_workflow import run_workflow
+        with suppress_stdout():
+            from .glyptic_workflow import run_workflow
 
-        for infile in internal_input.glob("*png"):
-            run_workflow(infile, outdir)
+            for infile in internal_input.glob("*png"):
+                run_workflow(infile, outdir)
