@@ -13,7 +13,7 @@ from .enhance_utils import get_unet, input_shape
 
 unet_path = Path(__file__).parent / 'unet_weights.hdf5'
 if not unet_path.exists():
-    url = 'https://github.com/tariks/carcanet/blob/master/glyptic/unet_weights.hdf5'
+    url = 'https://github.com/tariks/glyptic/raw/refs/heads/main/assets/unet_weights.hdf5'
     urllib.request.urlretrieve(url, unet_path)
 
 
