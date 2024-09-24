@@ -70,8 +70,8 @@ def run_workflow(infile, outdir):
             "enable",
         )
         image3 = VAEDecode(latent, vae)
-        image = ImageToPIL(image3)
-        # image = png.wait()[0]
+        image = SaveImage(image3, base)
+        image = image.wait()[0]
         image.save(outfile, optimize=True)
         vtracer.convert_image_to_svg_py(
             outfile.as_posix(),
