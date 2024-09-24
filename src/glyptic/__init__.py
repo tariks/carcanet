@@ -7,6 +7,7 @@ from pathlib import Path
 
 internal_path = Path(__file__).parent / "internal"
 internal_input = internal_path / "input"
+internal_input.mkdir(parents=True, exist_ok=True)
 
 
 @contextmanager
