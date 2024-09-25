@@ -16,7 +16,6 @@
 		<em>Built with:</em>
 </p>
 <p align="center">
-	<img src="https://img.shields.io/badge/tqdm-FFC107.svg?style=default&logo=tqdm&logoColor=black" alt="tqdm">
 	<img src="https://img.shields.io/badge/TensorFlow-FF6F00.svg?style=default&logo=TensorFlow&logoColor=white" alt="TensorFlow">
 	<img src="https://img.shields.io/badge/Keras-D00000.svg?style=default&logo=Keras&logoColor=white" alt="Keras">
 	<img src="https://img.shields.io/badge/SciPy-8CAAE6.svg?style=default&logo=SciPy&logoColor=white" alt="SciPy">
@@ -33,11 +32,8 @@
 - [ Repository Structure](#-repository-structure)
 - [ Modules](#-modules)
 - [ Getting Started](#-getting-started)
-    - [ Prerequisites](#-prerequisites)
     - [ Installation](#-installation)
     - [ Usage](#-usage)
-    - [ Tests](#-tests)
-- [ Project Roadmap](#-project-roadmap)
 - [ Contributing](#-contributing)
 - [ License](#-license)
 - [ Acknowledgments](#-acknowledgments)
@@ -46,7 +42,7 @@
 
 ##  Overview
 
-Written with the jewelry industry in mind, glyptic leverages advanced image processing and generative AI techniques to prepare fingerprint images suitable for jewelry engraving. A two-step process starts by utilizing a pre-trained U-Net model to enhance and denoise raw dactylograms. The second step automates an SDXL-based workflow transforming enhanced images to high-resolution, stylized vector art in SVG format, ensuring compatibility and scalability. Glyptic includes a streamlined setup process that can be deployed on a cloud or local install, and can comfortably run on an M1 Macbook. By generating beautiful yet faithful outputs for even low-quality fingerprints, glyptic significantly benefits the jewelry engraving industry.
+Written with the jewelry industry in mind, glyptic leverages advanced image processing and generative AI techniques to prepare fingerprint images suitable for jewelry engraving. A two-step process starts by utilizing a pre-trained U-Net model to enhance and denoise raw dactylograms. The second step automates an SDXL-based workflow transforming enhanced images to high-resolution, stylized vector art in SVG format, ensuring compatibility and scalability. Glyptic includes a streamlined setup process that can be deployed on a cloud or local install, and can comfortably run on an M1 Macbook. 
 
 ---
 
@@ -68,17 +64,13 @@ Written with the jewelry industry in mind, glyptic leverages advanced image proc
 
 ```sh
 └── glyptic/
-    ├── pyproject.toml
-    ├── README.md
     └── src
-        ├── glyptic
-        │   ├── __init__.py
-        │   ├── enhance_fingerprints.py
-        │   ├── enhance_utils.py
-        │   ├── glyptic_workflow.py
-        │   └── unet_weights.hdf5
-        └── glyptic_setup
+        └── glyptic
             ├── __init__.py
+            ├── enhance_fingerprints.py
+            ├── enhance_utils.py
+            ├── glyptic_workflow.py
+            ├── unet_weights.hdf5
             └── glyptic_setup.py
 ```
 
@@ -91,16 +83,9 @@ Written with the jewelry industry in mind, glyptic leverages advanced image proc
 | File | Summary |
 | --- | --- |
 | [enhance_fingerprints.py](https://github.com/tariks/glyptic/blob/main/src/glyptic/enhance_fingerprints.py) | Enhances fingerprint images by utilizing a pre-trained U-Net model. Downloads necessary model weights if unavailable locally and processes images in batches, resizing and normalizing them before prediction. Outputs enhanced images to a specified directory, optimizing them for further analysis or use within the repository's broader fingerprint processing workflow. |
-| [enhance_utils.py](https://github.com/tariks/glyptic/blob/main/src/glyptic/enhance_utils.py) | Defines the U-Net model used by enhance_fingerprints.py. |
-| [unet_weights.hdf5](https://github.com/tariks/glyptic/blob/main/src/glyptic/unet_weights.hdf5) | Contain pre-trained weights for a U-Net model, facilitating efficient and accurate image processing tasks within the glyptic module. Integrates seamlessly into the workflow, enhancing the systems capability to handle complex image enhancement and fingerprint analysis operations. |
+| [enhance_utils.py](https://github.com/tariks/glyptic/blob/main/src/glyptic/enhance_utils.py) | Defines the U-Net structure used by enhance_fingerprints.py. |
+| [unet_weights.hdf5](https://github.com/tariks/glyptic/blob/main/src/glyptic/unet_weights.hdf5) | Pre-trained weights for a U-Net model, facilitating efficient and accurate image processing tasks within the glyptic module. Integrates seamlessly into the workflow, enhancing the systems capability to handle complex image enhancement and fingerprint analysis operations. |
 | [glyptic_workflow.py](https://github.com/tariks/glyptic/blob/main/src/glyptic/glyptic_workflow.py) | Facilitates the transformation of input images into high-resolution, stylized outputs using advanced machine learning models and image processing techniques. Integrates various conditioning and control mechanisms to enhance image quality and converts the final output to SVG format, ensuring compatibility and scalability within the repositorys architecture. |
-
-</details>
-
-<details closed><summary>src.glyptic_setup</summary>
-
-| File | Summary |
-| --- | --- |
 | [glyptic_setup.py](https://github.com/tariks/glyptic/blob/main/src/glyptic_setup/glyptic_setup.py) | Facilitate the setup and configuration of the glyptic application by creating necessary directories, generating configuration files, and optionally downloading required model files. Enhance user experience by providing command-line arguments for custom data directories and automated setup processes. |
 
 </details>
@@ -111,34 +96,47 @@ Written with the jewelry industry in mind, glyptic leverages advanced image proc
 
 ###  Prerequisites
 
-**Python**: `version 3.12.6`
+**Python**: `version 3.11` or higher recommended.
+**GPU**: A GPU is recommended for faster processing, but not required.
+**RAM**: At least 16GB of RAM is recommended for optimal performance.
+
+Support for cloud deployment is in the works.
 
 ###  Installation
 
 ```sh
-❯ pip install glyptic
+❯ pip install glyptic # or
+❯ pipx install glyptic # or
+❯ uv tool install glyptic 
 ```
-
-Installing with pipx or similar will also work.
 
 ###  Setup
 
-Download and symlink required models:
+To configure everything in one command, do
 ```sh
-❯ glyptic_setup --config --download
+❯ glyptic_setup --config --download # or
+❯ glyptic_setup -c -d 
 ```
 
-```sh
-❯ glyptic_setup --help
-```
-for full options.
+If you already have the required models on hand, skip the download flag and symlink them to your data dir, which is $XDG_DATA_HOME/glyptic by default, or specified by --custom-data-dir.  
+
+Regenerate the config file anytime you update to a new version. 
 
 
 ###  Usage
 
+To run a raw fingerprint scan through the entire workflow, you need only
 ```sh
 ❯ glpytic -i myinput/*.jpg 
 ```
+
+Further options are available: 
+
+```sh
+❯ glpytic --help
+```
+
+The defaults are good for consistent balance between accuracy and artistry. Support for advanced settings is in the works.
 
 ---
 
