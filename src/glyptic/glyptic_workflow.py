@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import argparse
 
 internal = Path(__file__).parent / "internal"
 sys.path.insert(0, str(internal))
@@ -12,7 +13,7 @@ from comfy_script.runtime.nodes import *
 import vtracer
 
 
-def run_workflow(infile, outdir):
+def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,float], pos: str, neg: str, control_type: str, control_strength: float, steps: int, cfg: float, sampler: str):
     basefull = infile.name
     base = infile.stem
     outfile = outdir / f"{base}.png"
@@ -20,7 +21,7 @@ def run_workflow(infile, outdir):
         model, clip, vae = CheckpointLoaderSimple(
             "Juggernaut-XI-byRunDiffusion.safetensors"
         )
-        model = SelfAttentionGuidance(model, 0.5, 2)
+        if not no_sag: model = SelfAttentionGuidance(model, *sagparams)
         conditioning = CLIPTextEncodeSDXL(
             832,
             1152,
@@ -28,9 +29,9 @@ def run_workflow(infile, outdir):
             0,
             832,
             1152,
-            "fingerprint, line art, black lines white background, (high-resolution image:1.3).",
+            f"fingerprint, line art, black lines white background, (high-resolution image:1.3), {pos}",
             clip,
-            "fingerprint, line art, black lines white background, (high-resolution image:1.3).",
+            f"fingerprint, line art, black lines white background, (high-resolution image:1.3), {pos}",
         )
         conditioning2 = CLIPTextEncodeSDXL(
             832,
@@ -39,28 +40,28 @@ def run_workflow(infile, outdir):
             0,
             832,
             1152,
-            "faded, blurry, grey fill, dotted.",
+            f"faded, blurry, grey fill, dotted, {neg}",
             clip,
-            "faded, blurry, grey fill, dotted.",
+            f"faded, blurry, grey fill, dotted, {neg}",
         )
         control_net = ControlNetLoader(
             "xinsir_controlnet-union-sdxl-1.0/diffusion_pytorch_model_promax.safetensors"
         )
-        control_net = SetUnionControlNetType(control_net, "depth")
+        control_net = SetUnionControlNetType(control_net, control_type)
         image, _ = LoadImage(basefull)
         image = ImageScale(image, "bicubic", 832, 1152, "disabled")
         image2 = ImageInvert(image)
         positive, negative = ControlNetApplyAdvanced(
-            conditioning, conditioning2, control_net, image2, 0.5, 0, 1
+            conditioning, conditioning2, control_net, image2, control_strength, 0, 1
         )
         latent = VAEEncode(image, vae)
         latent = KSamplerAdvanced(
             model,
             "enable",
             42,
-            8,
-            4,
-            "euler_ancestral",
+            steps,
+            cfg,
+            sampler,
             "karras",
             positive,
             negative,
@@ -81,3 +82,5 @@ def run_workflow(infile, outdir):
         for i in (internal / "output").glob(f"{base}*g"):
             i.unlink()
         (internal / "input" / basefull).unlink(missing_ok=True)
+
+

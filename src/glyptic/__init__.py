@@ -24,11 +24,28 @@ def suppress_stdout():
             sys.stderr = old_stderr
 
 
-
 def refine(infiles: list[Path], outdir: Path):
     from .enhance_fingerprints import enhance
 
     enhance(infiles, outdir)
+
+
+def run_diffusion(infile: Path, outdir: Path, args: argparse.Namespace):
+    from .glyptic_workflow import img2img
+
+    img2img(
+        infile,
+        outdir,
+        no_sag=args.no_sag,
+        sagparams=args.sagparams,
+        pos=args.pos,
+        neg=args.neg,
+        control_type=args.control_type,
+        control_strength=args.control_strength,
+        steps=args.steps,
+        cfg=args.cfg,
+        sampler=args.sampler,
+    )
 
 
 def glyptic():
@@ -48,6 +65,7 @@ def glyptic():
         help="Path to input fingerprint image(s). Can be a space-delimited sequence of file paths or a glob expression (myinput/*.jpg, etc)",
     )
     parser.add_argument("-o", "--outdir", default="output", help="Output directory")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--enhance-only",
@@ -59,6 +77,54 @@ def glyptic():
         action="store_true",
         help="Only perform diffusion step, skip enhancement preprocessing. Expects enhanced 288x400 pngs. Outputs high resolution line art as png and svg files.",
     )
+    adv_group = parser.add_argument_group(
+        title="Advanced options",
+        description="provides more control over the diffusion process",
+    )
+    adv_group.add_argument(
+        "--steps", type=int, default=8, help="Number of diffusion steps"
+    )
+    adv_group.add_argument(
+        "--cfg", type=float, default=4, help="Classifier free guidance scale"
+    )
+    adv_group.add_argument(
+        "--sampler",
+        type=str,
+        default="euler_ancestral",
+        help="Sampler type",
+        choices=["euler_ancestral", "dpmpp_2m", "dpmpp_2m_sde"],
+    )
+    adv_group.add_argument(
+        "--no-sag",
+        action="store_true",
+        help="Disable self-attention guidance. Useful for speeding things up.",
+    )
+    adv_group.add_argument(
+        "--sagparams",
+        type=float,
+        nargs=2,
+        default=(0.5, 2),
+        help="Self-attention guidance. Expects two values, ex: --sagparams <scale> <blur_sigma>",
+    )
+    adv_group.add_argument(
+        "--control-strength",
+        type=float,
+        default=0.5,
+        help="Controlnet strength. Reducing may compensate for low quality input. Increasing may enhance higher quality input. ",
+    )
+    adv_group.add_argument(
+        "--control-type",
+        type=str,
+        default="depth",
+        choices=["depth", "auto", "repaint"],
+        help="Controlnet mode.",
+    )
+    adv_group.add_argument(
+        "--pos", type=str, default="", help="Append additional text to positive prompt"
+    )
+    adv_group.add_argument(
+        "--neg", type=str, default="", help="Append additional text to negative prompt"
+    )
 
     args = parser.parse_args()
 
@@ -68,23 +134,31 @@ def glyptic():
     if args.enhance_only:
         refine(infiles, outdir)
     elif args.diffusion_only:
-        with suppress_stdout():
-            from .glyptic_workflow import run_workflow
-
-            for infile in infiles:
-                shutil.copy2(infile, internal_input)
-                run_workflow(infile, outdir)
+        # with suppress_stdout():
+        for infile in infiles:
+            shutil.copy2(infile, internal_input)
+            if args.verbose:
+                print(f"Running diffusion on {infile.name}")
+                run_diffusion(infile, outdir, args)
+            else:
+                with suppress_stdout():
+                    run_diffusion(infile)
     else:
         refine(infiles, internal_input)
-        with suppress_stdout():
-            from .glyptic_workflow import run_workflow
 
-            for infile in internal_input.glob("*png"):
-                run_workflow(infile, outdir)
+        for infile in internal_input.glob("*png"):
+            if args.verbose:
+                print(f"Running diffusion on {internal_input}")
+                run_diffusion(infile, outdir, args)
+            else:
+                with suppress_stdout():
+                    run_diffusion(infile)
+
 
 def glyptic_setup():
     from .glyptic_setup import glyptic_setup as gs
-    from xdg_base_dirs import xdg_data_home 
+    from xdg_base_dirs import xdg_data_home
+
     gdata = xdg_data_home() / "glyptic"
     parser = argparse.ArgumentParser(
         prog="glyptic_setup",
@@ -113,4 +187,3 @@ def glyptic_setup():
     args = parser.parse_args()
 
     gs(args)
-
