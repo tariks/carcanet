@@ -1,9 +1,9 @@
 [project]
 name = "glyptic"
-version = "0.1.2"
+version = "0.1.3"
 description = "Dactylogram to intaglio for your carcanets."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.10.5",
     "einops>=0.8.0",
@@ -37,10 +37,10 @@ authors = [
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
-  "Environment :: GPU",
   "Intended Audience :: Other Audience",
   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Artistic Software",
   "Topic :: Multimedia :: Graphics",
   "Topic :: Scientific/Engineering :: Image Processing",

@@ -13,7 +13,19 @@ from comfy_script.runtime.nodes import *
 import vtracer
 
 
-def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,float], pos: str, neg: str, control_type: str, control_strength: float, steps: int, cfg: float, sampler: str):
+def img2img(
+    infile: Path,
+    outdir: Path,
+    no_sag: bool,
+    sagparams: tuple[float, float],
+    pos: str,
+    neg: str,
+    control_type: str,
+    control_strength: float,
+    steps: int,
+    cfg: float,
+    sampler: str,
+):
     basefull = infile.name
     base = infile.stem
     outfile = outdir / f"{base}.png"
@@ -21,7 +33,8 @@ def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,flo
         model, clip, vae = CheckpointLoaderSimple(
             "Juggernaut-XI-byRunDiffusion.safetensors"
         )
-        if not no_sag: model = SelfAttentionGuidance(model, *sagparams)
+        if not no_sag:
+            model = SelfAttentionGuidance(model, *sagparams)
         conditioning = CLIPTextEncodeSDXL(
             832,
             1152,
@@ -29,9 +42,9 @@ def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,flo
             0,
             832,
             1152,
-            f"fingerprint, line art, black lines white background, (high-resolution image:1.3), {pos}",
+            f"High-Resolution detailed line art of ((fingerprint)), black lines on white background, (precise and elegant lines), (elements of arabic calligraphy style), (crisp digital vector art), (optimized for laser engraving), sharp details{pos}",
             clip,
-            f"fingerprint, line art, black lines white background, (high-resolution image:1.3), {pos}",
+            f"High-Resolution detailed line art of ((fingerprint)), black lines on white background, (precise and elegant lines), (elements of arabic calligraphy style), (crisp digital vector art), (optimized for laser engraving), sharp details{pos}",
         )
         conditioning2 = CLIPTextEncodeSDXL(
             832,
@@ -40,9 +53,9 @@ def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,flo
             0,
             832,
             1152,
-            f"faded, blurry, grey fill, dotted, {neg}",
+            f"faded, blurry, grey fill, gradient, dotted, low-resolution, color, shading, text{neg}",
             clip,
-            f"faded, blurry, grey fill, dotted, {neg}",
+            f"faded, blurry, grey fill, gradient, dotted, low-resolution, color, shading, text{neg}",
         )
         control_net = ControlNetLoader(
             "xinsir_controlnet-union-sdxl-1.0/diffusion_pytorch_model_promax.safetensors"
@@ -50,7 +63,7 @@ def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,flo
         control_net = SetUnionControlNetType(control_net, control_type)
         image, _ = LoadImage(basefull)
         image = ImageScale(image, "bicubic", 832, 1152, "disabled")
-        image2 = ImageInvert(image)
+        image2 = image if control_type == "repaint" else ImageInvert(image)
         positive, negative = ControlNetApplyAdvanced(
             conditioning, conditioning2, control_net, image2, control_strength, 0, 1
         )
@@ -82,5 +95,3 @@ def img2img(infile: Path, outdir: Path, no_sag: bool, sagparams: tuple[float,flo
         for i in (internal / "output").glob(f"{base}*g"):
             i.unlink()
         (internal / "input" / basefull).unlink(missing_ok=True)
-
-

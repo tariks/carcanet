@@ -142,7 +142,7 @@ def glyptic():
                 run_diffusion(infile, outdir, args)
             else:
                 with suppress_stdout():
-                    run_diffusion(infile)
+                    run_diffusion(infile, outdir, args)
     else:
         refine(infiles, internal_input)
 
@@ -152,7 +152,7 @@ def glyptic():
                 run_diffusion(infile, outdir, args)
             else:
                 with suppress_stdout():
-                    run_diffusion(infile)
+                    run_diffusion(infile, outdir, args)
 
 
 def glyptic_setup():
