@@ -37,7 +37,7 @@ def run_diffusion(infile: Path, outdir: Path, args: argparse.Namespace):
         infile,
         outdir,
         no_sag=args.no_sag,
-        sagparams=args.sagparams,
+        sparams=args.sparams,
         pos=args.pos,
         neg=args.neg,
         control_type=args.control_type,
@@ -82,7 +82,7 @@ def glyptic():
         description="provides more control over the diffusion process",
     )
     adv_group.add_argument(
-        "--steps", type=int, default=8, help="Number of diffusion steps"
+        "--steps", type=int, default=12, help="Number of diffusion steps"
     )
     adv_group.add_argument(
         "--cfg", type=float, default=4, help="Classifier free guidance scale"
@@ -100,11 +100,11 @@ def glyptic():
         help="Disable self-attention guidance. Useful for speeding things up.",
     )
     adv_group.add_argument(
-        "--sagparams",
+        "--sparams",
         type=float,
         nargs=2,
-        default=(0.5, 2),
-        help="Self-attention guidance. Expects two values, ex: --sagparams <scale> <blur_sigma>",
+        default=(.5, 2),
+        help="Self-attention guidance. Expects two values, ex: --sparams <scale> <blur_sigma>",
     )
     adv_group.add_argument(
         "--control-strength",

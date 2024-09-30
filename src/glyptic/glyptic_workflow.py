@@ -17,7 +17,7 @@ def img2img(
     infile: Path,
     outdir: Path,
     no_sag: bool,
-    sagparams: tuple[float, float],
+    sparams: tuple[float, float],
     pos: str,
     neg: str,
     control_type: str,
@@ -34,7 +34,7 @@ def img2img(
             "Juggernaut-XI-byRunDiffusion.safetensors"
         )
         if not no_sag:
-            model = SelfAttentionGuidance(model, *sagparams)
+            model = SelfAttentionGuidance(model, *sparams)
         conditioning = CLIPTextEncodeSDXL(
             832,
             1152,
@@ -42,9 +42,9 @@ def img2img(
             0,
             832,
             1152,
-            f"High-Resolution detailed line art of ((fingerprint)), black lines on white background, (precise and elegant lines), (elements of arabic calligraphy style), (crisp digital vector art), (optimized for laser engraving), sharp details{pos}",
+            f"(fingerprint:1.2), (medium-detail line art suitable for CNC machining), (black lines on white background), (consistent depth engraving), smooth and continuous lines, (casting-ready design), (lost-wax casting style), machinable design, engraving-ready vector, high-resolution{pos}",
             clip,
-            f"High-Resolution detailed line art of ((fingerprint)), black lines on white background, (precise and elegant lines), (elements of arabic calligraphy style), (crisp digital vector art), (optimized for laser engraving), sharp details{pos}",
+            f"(fingerprint:1.2), (medium-detail line art suitable for CNC machining), (black lines on white background), (consistent depth engraving), smooth and continuous lines, (casting-ready design), (lost-wax casting style), machinable design, engraving-ready vector, high-resolution{pos}",
         )
         conditioning2 = CLIPTextEncodeSDXL(
             832,
@@ -53,9 +53,9 @@ def img2img(
             0,
             832,
             1152,
-            f"faded, blurry, grey fill, gradient, dotted, low-resolution, color, shading, text{neg}",
+            f"faded, gradient, dotted, dots, grey fill, color, thin elements, undercuts, overhangs, fragile structures, excessive depth variation, delicate patterns, non-manufacturable, disconnected lines, rough lines, noise, distortion, pixelation",
             clip,
-            f"faded, blurry, grey fill, gradient, dotted, low-resolution, color, shading, text{neg}",
+            f"faded, gradient, dotted, dots, grey fill, color, thin elements, undercuts, overhangs, fragile structures, excessive depth variation, delicate patterns, non-manufacturable, disconnected lines, rough lines, noise, distortion, pixelation",
         )
         control_net = ControlNetLoader(
             "xinsir_controlnet-union-sdxl-1.0/diffusion_pytorch_model_promax.safetensors"
